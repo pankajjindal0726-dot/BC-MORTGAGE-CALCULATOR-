@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Icon Generator - BC Mortgage Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #0a4d68;
+        }
+        .instructions {
+            background: #f0f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        button {
+            background: linear-gradient(135deg, #0a4d68 0%, #088395 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 20px 0;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        #preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .icon-preview {
+            text-align: center;
+        }
+        .icon-preview img {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+        .icon-preview p {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎨 BC Mortgage Calculator Icon Generator</h1>
+    
+    <div class="instructions">
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Click the "Generate All Icons" button below</li>
+            <li>8 PNG files will be automatically downloaded (icon-72.png through icon-512.png)</li>
+            <li>Place all these PNG files in the same folder as your mortgage-calc.html file</li>
+            <li>Your PWA is ready to use!</li>
+        </ol>
+    </div>
+    
+    <button onclick="generateAllIcons()">🚀 Generate All Icons</button>
+    
+    <div id="preview"></div>
+    
+    <script>
+        function generateAllIcons() {
+            const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+            const preview = document.getElementById('preview');
+            preview.innerHTML = '<p>Generating icons...</p>';
+            
+            let completed = 0;
+            
+            sizes.forEach((size, index) => {
+                setTimeout(() => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = size;
+                    canvas.height = size;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Background gradient
+                    const gradient = ctx.createLinearGradient(0, 0, size, size);
+                    gradient.addColorStop(0, '#0a4d68');
+                    gradient.addColorStop(1, '#088395');
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, size, size);
+                    
+                    // Add rounded corners
+                    ctx.globalCompositeOperation = 'destination-in';
+                    ctx.beginPath();
+                    ctx.roundRect(0, 0, size, size, size * 0.15);
+                    ctx.fill();
+                    ctx.globalCompositeOperation = 'source-over';
+                    
+                    // House icon
+                    ctx.fillStyle = 'white';
+                    const scale = size / 512;
+                    
+                    // Roof
+                    ctx.beginPath();
+                    ctx.moveTo(256 * scale, 160 * scale);
+                    ctx.lineTo(380 * scale, 240 * scale);
+                    ctx.lineTo(132 * scale, 240 * scale);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    // House body
+                    ctx.fillRect(152 * scale, 235 * scale, 208 * scale, 160 * scale);
+                    
+                    // Door
+                    ctx.fillStyle = '#0a4d68';
+                    ctx.fillRect(230 * scale, 310 * scale, 52 * scale, 85 * scale);
+                    
+                    // Window
+                    ctx.fillRect(300 * scale, 270 * scale, 40 * scale, 40 * scale);
+                    
+                    // Dollar sign
+                    ctx.fillStyle = '#05bfdb';
+                    ctx.font = `bold ${50 * scale}px Arial, sans-serif`;
+                    ctx.fillText('$', 170 * scale, 310 * scale);
+                    
+                    // Convert to blob and download
+                    canvas.toBlob(blob => {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `icon-${size}.png`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        
+                        completed++;
+                        
+                        // Show preview
+                        if (preview.innerHTML === '<p>Generating icons...</p>') {
+                            preview.innerHTML = '';
+                        }
+                        
+                        const previewDiv = document.createElement('div');
+                        previewDiv.className = 'icon-preview';
+                        const img = document.createElement('img');
+                        img.src = canvas.toDataURL();
+                        img.width = Math.min(size, 128);
+                        previewDiv.appendChild(img);
+                        const label = document.createElement('p');
+                        label.textContent = `${size}×${size}px`;
+                        previewDiv.appendChild(label);
+                        preview.appendChild(previewDiv);
+                        
+                        if (completed === sizes.length) {
+                            const successMsg = document.createElement('p');
+                            successMsg.innerHTML = '<strong style="color: #10b981; font-size: 18px;">✅ All icons generated successfully!</strong>';
+                            preview.insertBefore(successMsg, preview.firstChild);
+                        }
+                    });
+                }, index * 200); // Stagger downloads
+            });
+        }
+    </script>
+</body>
+</html>

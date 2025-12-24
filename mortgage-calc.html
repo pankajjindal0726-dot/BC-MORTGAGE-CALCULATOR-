@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a4d68">
+    <meta name="description" content="Calculate your BC mortgage with 2025 rules. CMHC insurance, property transfer tax, and stress test calculator.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BC Mortgage">
+    <title>BC Mortgage Calculator</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0a4d68;
+            --primary-light: #088395;
+            --accent: #05bfdb;
+            --text-dark: #1a1a2e;
+            --text-light: #6b7280;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 968px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--bg-white);
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            animation: fadeInUp 0.6s ease-out;
+            border: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Manrope', sans-serif;
+            transition: all 0.3s ease;
+            background: var(--bg-light);
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            background: var(--bg-white);
+            box-shadow: 0 0 0 3px rgba(8, 131, 149, 0.1);
+        }
+
+        .input-info {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .range-container {
+            margin-top: 10px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: var(--border);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: var(--primary);
+            transform: scale(1.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            cursor: pointer;
+            border: none;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--primary-light);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 16px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Sora', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-calculate {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px var(--primary-light);
+        }
+
+        .btn-reset {
+            background: var(--bg-light);
+            color: var(--text-dark);
+            border: 2px solid var(--border);
+        }
+
+        .btn-reset:hover {
+            background: var(--border);
+        }
+
+        .results {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 10px 30px -10px rgba(8, 131, 149, 0.4);
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .result-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .result-value {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .breakdown {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .breakdown-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-banner {
+            background: var(--bg-white);
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .info-banner h3 {
+            font-family: 'Sora', sans-serif;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .info-banner ul {
+            margin-left: 20px;
+            color: var(--text-light);
+        }
+
+        .info-banner li {
+            margin-bottom: 8px;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .alert {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            color: #92400e;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        .stress-test-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏡 BC Mortgage Calculator</h1>
+            <p class="subtitle">Calculate your mortgage with 2025 BC rules</p>
+            <p class="subtitle" style="margin-top: 10px; font-size: 0.95rem; opacity: 0.8;">Made by Pankaj Jindal</p>
+        </header>
+
+        <div class="calculator-grid">
+            <div class="card">
+                <h2 class="card-title">💰 Property Details</h2>
+                
+                <div class="input-group">
+                    <label for="homePrice">Home Price</label>
+                    <input type="number" id="homePrice" value="750000" min="0" step="1000">
+                    <div class="range-container">
+                        <input type="range" id="homePriceRange" min="100000" max="3000000" step="10000" value="750000">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="downPayment">Down Payment (%)</label>
+                    <input type="number" id="downPayment" value="10" min="0" max="100" step="0.5">
+                    <div class="range-container">
+                        <input type="range" id="downPaymentRange" min="0" max="100" step="0.5" value="10">
+                    </div>
+                    <div id="downPaymentInfo" class="input-info"></div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="firstTimeBuyer">
+                    <label for="firstTimeBuyer" style="margin-bottom: 0;">First-Time Home Buyer</label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="newlyBuilt">
+                    <label for="newlyBuilt" style="margin-bottom: 0;">Newly Built Home</label>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">📊 Mortgage Terms</h2>
+                
+                <div class="input-group">
+                    <label for="interestRate">Interest Rate (%)</label>
+                    <input type="number" id="interestRate" value="5.5" min="0" max="20" step="0.05">
+                    <div class="range-container">
+                        <input type="range" id="interestRateRange" min="0" max="20" step="0.05" value="5.5">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="amortization">Amortization Period (years)</label>
+                    <select id="amortization">
+                        <option value="25">25 years (Standard)</option>
+                        <option value="30">30 years (First-Time Buyer or New Build)</option>
+                        <option value="20">20 years</option>
+                        <option value="15">15 years</option>
+                        <option value="10">10 years</option>
+                    </select>
+                    <div class="input-info">30-year option available for first-time buyers and new builds</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="paymentFrequency">Payment Frequency</label>
+                    <select id="paymentFrequency">
+                        <option value="monthly">Monthly</option>
+                        <option value="biweekly">Bi-weekly (26 payments/year)</option>
+                        <option value="weekly">Weekly (52 payments/year)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="button-group">
+                <button class="btn-calculate" onclick="calculateMortgage()">Calculate Mortgage</button>
+                <button class="btn-reset" onclick="resetForm()">Reset</button>
+            </div>
+        </div>
+
+        <div id="resultsSection" class="hidden">
+            <div class="results">
+                <h2 class="card-title" style="color: white; margin-bottom: 10px;">📈 Your Mortgage Breakdown</h2>
+                
+                <div class="result-grid">
+                    <div class="result-item">
+                        <div class="result-label">Payment Amount</div>
+                        <div class="result-value" id="paymentAmount">$0</div>
+                        <div class="result-label" id="paymentFreqLabel"></div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">Mortgage Amount</div>
+                        <div class="result-value" id="mortgageAmount">$0</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">Down Payment</div>
+                        <div class="result-value" id="downPaymentAmount">$0</div>
+                    </div>
+                    
+                    <div class="result-item">
+                        <div class="result-label">Total Interest</div>
+                        <div class="result-value" id="totalInterest">$0</div>
+                    </div>
+                </div>
+
+                <div class="breakdown">
+                    <h3 class="breakdown-title">💳 Additional Costs</h3>
+                    <div class="breakdown-item">
+                        <span>CMHC Insurance (<span id="cmhcRate">0%</span>)</span>
+                        <strong id="cmhcAmount">$0</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Property Transfer Tax</span>
+                        <strong id="pttAmount">$0</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span><strong>Total Upfront Costs</strong></span>
+                        <strong id="upfrontCosts">$0</strong>
+                    </div>
+                </div>
+
+                <div class="breakdown">
+                    <h3 class="breakdown-title">📉 Mortgage Stress Test</h3>
+                    <div class="stress-test-info">
+                        <div class="breakdown-item">
+                            <span>Qualifying Rate (your rate + 2%)</span>
+                            <strong id="stressRate">0%</strong>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Qualifying Payment</span>
+                            <strong id="stressPayment">$0</strong>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Estimated Income Required (35% GDS)</span>
+                            <strong id="incomeRequired">$0</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-banner">
+                <h3>📋 BC Mortgage Rules (2025)</h3>
+                <ul>
+                    <li><strong>Down Payment:</strong> 5% on first $500k, 10% on $500k-$1.5M, 20% on $1.5M+</li>
+                    <li><strong>CMHC Insurance:</strong> Required for down payments under 20% (0.6% to 4.5% premium)</li>
+                    <li><strong>30-Year Amortization:</strong> Available for first-time buyers and new builds</li>
+                    <li><strong>Property Transfer Tax:</strong> 1% on first $200k, 2% on $200k-$2M, 3% on $2M-$3M, 5% above $3M</li>
+                    <li><strong>First-Time Buyer PTT Exemption:</strong> Full exemption up to $835,000, partial up to $860,000</li>
+                    <li><strong>Stress Test:</strong> You must qualify at your rate + 2% or the Bank of Canada rate</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sync input fields with range sliders
+        const homePrice = document.getElementById('homePrice');
+        const homePriceRange = document.getElementById('homePriceRange');
+        const downPayment = document.getElementById('downPayment');
+        const downPaymentRange = document.getElementById('downPaymentRange');
+        const interestRate = document.getElementById('interestRate');
+        const interestRateRange = document.getElementById('interestRateRange');
+
+        homePrice.addEventListener('input', (e) => {
+            homePriceRange.value = e.target.value;
+            updateDownPaymentInfo();
+        });
+        
+        homePriceRange.addEventListener('input', (e) => {
+            homePrice.value = e.target.value;
+            updateDownPaymentInfo();
+        });
+
+        downPayment.addEventListener('input', (e) => {
+            downPaymentRange.value = e.target.value;
+            updateDownPaymentInfo();
+        });
+        
+        downPaymentRange.addEventListener('input', (e) => {
+            downPayment.value = e.target.value;
+            updateDownPaymentInfo();
+        });
+
+        interestRate.addEventListener('input', (e) => {
+            interestRateRange.value = e.target.value;
+        });
+        
+        interestRateRange.addEventListener('input', (e) => {
+            interestRate.value = e.target.value;
+        });
+
+        function updateDownPaymentInfo() {
+            const price = parseFloat(homePrice.value);
+            const downPct = parseFloat(downPayment.value);
+            const downAmount = (price * downPct) / 100;
+            
+            const minDown = calculateMinimumDownPayment(price);
+            const minDownPct = (minDown / price) * 100;
+            
+            const info = document.getElementById('downPaymentInfo');
+            if (downAmount < minDown) {
+                info.innerHTML = `⚠️ Minimum required: ${minDownPct.toFixed(1)}% ($${formatNumber(minDown)})`;
+                info.style.color = '#dc2626';
+            } else {
+                info.innerHTML = `✓ Down payment: $${formatNumber(downAmount)}`;
+                info.style.color = '#10b981';
+            }
+        }
+
+        function calculateMinimumDownPayment(price) {
+            if (price <= 500000) {
+                return price * 0.05;
+            } else if (price <= 1500000) {
+                return 25000 + (price - 500000) * 0.10;
+            } else {
+                return price * 0.20;
+            }
+        }
+
+        function calculateCMHCPremium(mortgageAmount, homePrice) {
+            const ltvRatio = (mortgageAmount / homePrice) * 100;
+            
+            if (ltvRatio <= 80) return 0;
+            if (ltvRatio <= 85) return 0.006;
+            if (ltvRatio <= 90) return 0.0240;
+            if (ltvRatio <= 95) return 0.0400;
+            return 0.045;
+        }
+
+        function calculatePropertyTransferTax(price, isFirstTime, isNewlyBuilt) {
+            // First-time buyer exemption
+            if (isFirstTime) {
+                if (price <= 835000) return 0;
+                if (price <= 860000) {
+                    // Partial exemption calculation
+                    const excessAmount = price - 835000;
+                    const exemptionReduction = (excessAmount / 25000);
+                    const fullTax = calculatePTTWithoutExemption(price);
+                    return fullTax * exemptionReduction;
+                }
+            }
+
+            // Newly built home exemption
+            if (isNewlyBuilt) {
+                if (price <= 1100000) return 0;
+                if (price <= 1150000) {
+                    const excessAmount = price - 1100000;
+                    const exemptionReduction = (excessAmount / 50000);
+                    const fullTax = calculatePTTWithoutExemption(price);
+                    return fullTax * exemptionReduction;
+                }
+            }
+
+            return calculatePTTWithoutExemption(price);
+        }
+
+        function calculatePTTWithoutExemption(price) {
+            let tax = 0;
+            
+            if (price <= 200000) {
+                tax = price * 0.01;
+            } else if (price <= 2000000) {
+                tax = 2000 + (price - 200000) * 0.02;
+            } else if (price <= 3000000) {
+                tax = 2000 + 36000 + (price - 2000000) * 0.03;
+            } else {
+                tax = 2000 + 36000 + 30000 + (price - 3000000) * 0.05;
+            }
+            
+            return tax;
+        }
+
+        function calculateMortgage() {
+            const price = parseFloat(homePrice.value);
+            const downPct = parseFloat(downPayment.value);
+            const rate = parseFloat(interestRate.value);
+            const amort = parseInt(document.getElementById('amortization').value);
+            const freq = document.getElementById('paymentFrequency').value;
+            const isFirstTime = document.getElementById('firstTimeBuyer').checked;
+            const isNewlyBuilt = document.getElementById('newlyBuilt').checked;
+
+            // Calculate down payment
+            const downAmount = (price * downPct) / 100;
+            const minDown = calculateMinimumDownPayment(price);
+
+            // Check if down payment is sufficient
+            if (downAmount < minDown) {
+                alert(`Insufficient down payment! You need at least $${formatNumber(minDown)} (${((minDown/price)*100).toFixed(1)}%) for this property.`);
+                return;
+            }
+
+            // Calculate mortgage amount
+            let mortgageAmount = price - downAmount;
+            
+            // Calculate CMHC insurance if applicable
+            let cmhcPremium = 0;
+            let cmhcRate = 0;
+            if (downAmount < price * 0.20) {
+                cmhcRate = calculateCMHCPremium(mortgageAmount, price);
+                cmhcPremium = mortgageAmount * cmhcRate;
+                mortgageAmount += cmhcPremium;
+            }
+
+            // Calculate payment frequency factor
+            let paymentsPerYear, periodicRate;
+            if (freq === 'monthly') {
+                paymentsPerYear = 12;
+                periodicRate = rate / 100 / 12;
+            } else if (freq === 'biweekly') {
+                paymentsPerYear = 26;
+                periodicRate = rate / 100 / 26;
+            } else {
+                paymentsPerYear = 52;
+                periodicRate = rate / 100 / 52;
+            }
+
+            const totalPayments = amort * paymentsPerYear;
+
+            // Calculate payment using mortgage formula
+            let payment;
+            if (periodicRate === 0) {
+                payment = mortgageAmount / totalPayments;
+            } else {
+                payment = mortgageAmount * (periodicRate * Math.pow(1 + periodicRate, totalPayments)) / 
+                          (Math.pow(1 + periodicRate, totalPayments) - 1);
+            }
+
+            // Calculate total interest
+            const totalPaid = payment * totalPayments;
+            const totalInterest = totalPaid - mortgageAmount;
+
+            // Calculate property transfer tax
+            const ptt = calculatePropertyTransferTax(price, isFirstTime, isNewlyBuilt);
+
+            // Calculate stress test
+            const stressRate = rate + 2;
+            const stressPeriodicRate = stressRate / 100 / 12;
+            const stressPayment = mortgageAmount * (stressPeriodicRate * Math.pow(1 + stressPeriodicRate, amort * 12)) / 
+                                 (Math.pow(1 + stressPeriodicRate, amort * 12) - 1);
+            
+            // Estimate required income (using 35% GDS ratio)
+            const requiredIncome = (stressPayment * 12) / 0.35;
+
+            // Display results
+            document.getElementById('paymentAmount').textContent = '$' + formatNumber(payment.toFixed(2));
+            document.getElementById('paymentFreqLabel').textContent = freq.charAt(0).toUpperCase() + freq.slice(1);
+            document.getElementById('mortgageAmount').textContent = '$' + formatNumber(mortgageAmount.toFixed(0));
+            document.getElementById('downPaymentAmount').textContent = '$' + formatNumber(downAmount.toFixed(0));
+            document.getElementById('totalInterest').textContent = '$' + formatNumber(totalInterest.toFixed(0));
+            document.getElementById('cmhcRate').textContent = (cmhcRate * 100).toFixed(2) + '%';
+            document.getElementById('cmhcAmount').textContent = '$' + formatNumber(cmhcPremium.toFixed(0));
+            document.getElementById('pttAmount').textContent = '$' + formatNumber(ptt.toFixed(0));
+            document.getElementById('upfrontCosts').textContent = '$' + formatNumber((downAmount + ptt).toFixed(0));
+            document.getElementById('stressRate').textContent = stressRate.toFixed(2) + '%';
+            document.getElementById('stressPayment').textContent = '$' + formatNumber(stressPayment.toFixed(2)) + '/month';
+            document.getElementById('incomeRequired').textContent = '$' + formatNumber(requiredIncome.toFixed(0)) + '/year';
+
+            // Show results
+            document.getElementById('resultsSection').classList.remove('hidden');
+            
+            // Smooth scroll to results
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function resetForm() {
+            document.getElementById('homePrice').value = 750000;
+            document.getElementById('homePriceRange').value = 750000;
+            document.getElementById('downPayment').value = 10;
+            document.getElementById('downPaymentRange').value = 10;
+            document.getElementById('interestRate').value = 5.5;
+            document.getElementById('interestRateRange').value = 5.5;
+            document.getElementById('amortization').value = 25;
+            document.getElementById('paymentFrequency').value = 'monthly';
+            document.getElementById('firstTimeBuyer').checked = false;
+            document.getElementById('newlyBuilt').checked = false;
+            document.getElementById('resultsSection').classList.add('hidden');
+            updateDownPaymentInfo();
+        }
+
+        function formatNumber(num) {
+            return parseFloat(num).toLocaleString('en-CA', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            });
+        }
+
+        // Initialize
+        updateDownPaymentInfo();
+
+        // PWA: Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(registration => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed'));
+            });
+        }
+
+        // PWA: Install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallBanner();
+        });
+
+        function showInstallBanner() {
+            const banner = document.createElement('div');
+            banner.id = 'installBanner';
+            banner.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 50px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                z-index: 1000;
+                animation: slideUp 0.4s ease-out;
+                max-width: 90%;
+            `;
+            banner.innerHTML = `
+                <span style="font-weight: 600;">📱 Install this app on your device</span>
+                <button onclick="installApp()" style="background: white; color: var(--primary); border: none; padding: 8px 20px; border-radius: 20px; font-weight: 600; cursor: pointer;">Install</button>
+                <button onclick="closeInstallBanner()" style="background: transparent; color: white; border: 1px solid white; padding: 8px 20px; border-radius: 20px; font-weight: 600; cursor: pointer;">Later</button>
+            `;
+            document.body.appendChild(banner);
+        }
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    }
+                    deferredPrompt = null;
+                    closeInstallBanner();
+                });
+            }
+        }
+
+        function closeInstallBanner() {
+            const banner = document.getElementById('installBanner');
+            if (banner) {
+                banner.style.animation = 'slideDown 0.4s ease-out';
+                setTimeout(() => banner.remove(), 400);
+            }
+        }
+    </script>
+    <style>
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-50%) translateY(100px);
+            }
+        }
+    </style>
+</body>
+</html>
